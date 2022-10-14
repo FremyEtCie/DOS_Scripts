@@ -82,7 +82,7 @@ Put all the Comic Book files to convert into the folder ComicBook-batch-converte
   - [x] detect if no file decompress
   - [x] remove / delete old folder unused after
 - Create tests with bad files
-  - [ ] non regression tests
+  - [ ] make non regression tests
 
 ### License
 
