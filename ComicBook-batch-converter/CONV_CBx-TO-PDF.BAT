@@ -115,6 +115,8 @@ for /f "tokens=* usebackq" %%a in (%FOLDER-TMP%%LISTING-FILE%) do (
 		)
 	)
 )>>%BAKCLOG_FILE%
+echo [INFO] Nettoyage des fichiers temporaires
+del "%FOLDER-TMP%%LISTING-FILE%" 2>NUL
 ECHO ----------------------------------- DONE! -----------------------------
 goto :End_label
 :Error_label
