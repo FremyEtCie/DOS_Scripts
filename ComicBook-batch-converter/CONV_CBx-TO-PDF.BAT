@@ -78,7 +78,7 @@ for /f "tokens=* usebackq" %%a in (%FOLDER-TMP%%LISTING-FILE%) do (
 		%SEVENZIP% e "!FILENAME:~0,-1!" -o"%FOLDER-TMP%%%~na" *.* -r
 		IF ERRORLEVEL 1 GOTO :Error_label
 		ECHO --------------------------- CONVERT IMAGE FILES -----------------------
-		if not exist "%FOLDER-TMP%%%~na\*.jpg" (
+		if not exist "%FOLDER-TMP%%%~na\*.*" (
 			echo [WARNING] Aucun fichier decompresse dans le repertoire "%FOLDER-TMP%%%~na" > CON
 			echo [WARNING] Aucun fichier decompresse dans le repertoire "%FOLDER-TMP%%%~na"
 			rmdir /S /Q "%FOLDER-TMP%%%~na" 2>NUL
@@ -90,9 +90,11 @@ for /f "tokens=* usebackq" %%a in (%FOLDER-TMP%%LISTING-FILE%) do (
 		del "%FOLDER-TMP%%%~na\*.sfv" 2>NUL
 		del "%FOLDER-TMP%%%~na\*.nfo" 2>NUL
 		del /S /A:H "%FOLDER-TMP%%%~na\Thumbs.db" 2>NUL
-		echo [INFO] Convertion des images au format JPEG dans le repertoire %FOLDER-TMP%%%~na
-		%CONVERTIMG% %OPTIONS-CONVERTIMG% "%FOLDER-TMP%%%~na\*.*"
+		if exist "%FOLDER-TMP%%%~na\*.jpg" (
+		echo [INFO] Convertion uniquement des images au format JPEG dans le repertoire %FOLDER-TMP%%%~na
+		%CONVERTIMG% %OPTIONS-CONVERTIMG% "%FOLDER-TMP%%%~na\*.jpg"
 		IF ERRORLEVEL 1 GOTO :Error_label
+		)
 		if not exist "%FOLDER-TMP%%%~na" (
 			echo [WARNING] Fichier %%~a non decompresse > CON
 			echo [WARNING] Fichier %%~a non decompresse
@@ -102,7 +104,7 @@ for /f "tokens=* usebackq" %%a in (%FOLDER-TMP%%LISTING-FILE%) do (
 			echo [INFO] Suppression du fichier "%FOLDER-PDF%%%~na.PDF"
 			del "%FOLDER-PDF%%%~na.PDF" 2>NUL
 			echo [INFO] Conversion du fichier "%FOLDER-PDF%%%~na.PDF"
-			%IMAGEDISK% %OPTIONS% "%FOLDER-TMP%%%~na\*.jpg" "%FOLDER-PDF%%%~na.PDF"
+			%IMAGEDISK% %OPTIONS% "%FOLDER-TMP%%%~na\*.*" "%FOLDER-PDF%%%~na.PDF"
 			IF ERRORLEVEL 1 GOTO :Error_label
 			echo [INFO] Supression du repertoire de travail %FOLDER-TMP%%%~na
 			rmdir /S /Q "%FOLDER-TMP%%%~na" 2>NUL
