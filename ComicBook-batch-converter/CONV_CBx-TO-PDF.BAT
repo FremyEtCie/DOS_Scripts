@@ -18,6 +18,7 @@ set FOLDER-TMP=.\files\.TMP\
 set LISTING-FILE=listeCB.txt
 
 set SEVENZIP=.\tools\7z.exe
+set OPTIONS-SEVENZIP=-r -y
 set IMAGEDISK=.\tools\convert.exe
 set OPTIONS-IMAGEDISK=-auto-orient
 set CONVERTIMG=.\tools\nconvert.exe
@@ -75,7 +76,7 @@ for /f "tokens=* usebackq" %%a in (%FOLDER-TMP%%LISTING-FILE%) do (
 		ECHO ---------------------------- DECOMPRESS FILE --------------------------
 		echo [INFO] Decompression du fichier "%%~a"
 		set FILENAME=%%a
-		%SEVENZIP% e "!FILENAME:~0,-1!" -o"%FOLDER-TMP%%%~na" *.* -r
+		%SEVENZIP% e "!FILENAME:~0,-1!" -o"%FOLDER-TMP%%%~na" *.* %OPTIONS-SEVENZIP%
 		IF ERRORLEVEL 1 GOTO :Error_label
 		ECHO --------------------------- CONVERT IMAGE FILES -----------------------
 		if not exist "%FOLDER-TMP%%%~na\*.*" (
@@ -84,11 +85,14 @@ for /f "tokens=* usebackq" %%a in (%FOLDER-TMP%%LISTING-FILE%) do (
 			rmdir /S /Q "%FOLDER-TMP%%%~na" 2>NUL
 			if %TOTAL-FILE% == 1 (goto :Error_label)
 		)
-		echo [INFO] Suppression des fichiers .txt .xml .sfv .nfo dans le repertoire %FOLDER-TMP%%%~na
+		echo [INFO] Suppression des fichiers .txt .xml .nfo dans le repertoire %FOLDER-TMP%%%~na
 		del "%FOLDER-TMP%%%~na\*.txt" 2>NUL
 		del "%FOLDER-TMP%%%~na\*.xml" 2>NUL
 		del "%FOLDER-TMP%%%~na\*.sfv" 2>NUL
 		del "%FOLDER-TMP%%%~na\*.nfo" 2>NUL
+		del "%FOLDER-TMP%%%~na\*.afi" 2>NUL
+		del "%FOLDER-TMP%%%~na\*.old" 2>NUL
+		del "%FOLDER-TMP%%%~na\*.csv" 2>NUL
 		del /S /A:H "%FOLDER-TMP%%%~na\Thumbs.db" 2>NUL
 		if exist "%FOLDER-TMP%%%~na\*.jpg" (
 		echo [INFO] Convertion uniquement des images au format JPEG dans le repertoire %FOLDER-TMP%%%~na
