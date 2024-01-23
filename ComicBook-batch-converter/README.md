@@ -10,15 +10,22 @@ Image processing for create PDF file from Comic Book (.CBR & .CBZ) with 7zip / I
 
 * VSC :: v1.67.0 64bits
 * OS :: Windows_NT x64 10.0.19044
-* 7zip v22.01 (https://sevenzip.osdn.jp/chm/cmdline/commands/)
-* ImageMagick v7.1.0 (http://www.gogolplex.org/?imagemagick)
-* NConvert v7.121 (https://www.xnview.com/wiki/index.php/NConvert_User_Guide)
+
+## Free tools used
+
+* 7zip v22.01 (https://www.7-zip.org/)
+* ImageMagick v7.1.1-24 (Portable-Q16-x64) (https://imagemagick.org/)
+* NConvert v7.121 (https://www.xnview.com/fr/nconvert/)
 
 ## Requirements
 
  - Microsoft Windows in a x64 bits plateform
  - CPU 4 Cores
+<<<<<<< HEAD
+ - Memory: 8 to 16 Go required
+=======
  - Memory: minimum 8 to 16 Go needed
+>>>>>>> c55f00acea786b318fc0df862565aa9765725bfb
 
 ## Folder structure
 
@@ -36,7 +43,8 @@ Image processing for create PDF file from Comic Book (.CBR & .CBZ) with 7zip / I
  |   |   +-- fichier1_example.CBX
  |   |   +-- fichier2_example.CBZ
  |   +-- .LOG/ - generate rapport from the batch script
- |   |   +-- rapport_13102022-14h24.txt
+ |   |   +-- rapport_ddmmyyyy-hhhmm.txt
+ |   |   +-- listeCBErr.txt
  |   +-- .PDF/ - Generate PDF file folder
  |   |   +-- fichier1_example.PDF
  |   |   +-- fichier2_example.PDF
@@ -63,7 +71,14 @@ Put all the Comic Book files to convert into the folder ~/ComicBook-batch-conver
   - [x] Convert all image file to PDF
   - [ ] use multi threading job
 - NConvert
-  - [x] convert JPEG file not recongnized by ImageDisk
+  - [x] convert JPEG file not recongnized by ImageDisk (photoshop issues)
+  - [x] convert all files for only JPEG format in 32 bits
+  - [x] convert JPEG to 72 dpi and A4 format
+  - [x] add debug parameters
+- ImageMagick
+  - [x] auto orient and normalize picture
+  - [x] add debug parameters
+  - [x] add xml properties files
 - CONV_CBx-TO-PDF.BAT
   - [x] check first using (delete todelete.txt file)
   - [x] check tools available before
@@ -74,11 +89,19 @@ Put all the Comic Book files to convert into the folder ~/ComicBook-batch-conver
   - [x] indicate which file in treatment
   - [x] check if no file decompress
   - [x] delete file which should not included inside the PDF file
+    - [x] *.rtf
+    - [x] *.htm
     - [x] *.txt
     - [x] *.xml
     - [x] *.sfv
     - [x] *.nfo
+    - [x] *.afi
+    - [x] *.old
+    - [x] *.csv
+    - [x] *.db
+    - [x] *.url
     - [x] Thumbs.db
+    - [x] .DS_Store folder and content from Mac
     - [ ] detect a non image file with a proper list designed
   - [x] detect if no file decompressed
   - [x] remove / delete old folder unused after
