@@ -21,11 +21,7 @@ Image processing for create PDF file from Comic Book (.CBR & .CBZ) with 7zip / I
 
  - Microsoft Windows in a x64 bits plateform
  - CPU 4 Cores
-<<<<<<< HEAD
  - Memory: 8 to 16 Go required
-=======
- - Memory: minimum 8 to 16 Go needed
->>>>>>> c55f00acea786b318fc0df862565aa9765725bfb
 
 ## Folder structure
 
