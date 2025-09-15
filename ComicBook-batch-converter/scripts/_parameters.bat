@@ -8,18 +8,28 @@
 @REM ***      https://github.com/FremyEtCie           ***
 @REM ****************************************************
 
-:: switch  : -bs{o|e|p}{0|1|2}	Set output stream for output/error/progress
-:: command : t	Test
-set OPTION-TEST-SEVENZIP=t -bso0 -bse0
+:: command : t	    Test
+:: switch  : bs{o|e|p}{0|1|2}	Set output stream for output/error/progress
+:: bso - standard output messages / bse - error messages / bsp - progress information
+:: command : ssc    case-insensitive (The default is "-ssc-" on Windows (insensitive) and "-scc" on Linux (sensitive))
+:: command : r      Recurse subdirectories
+:: command : bd     Disable the progress indicator
+set OPTION-TEST-SEVENZIP=t -bse1 -r -ssc -bd
 
-:: switch  : -r	Recurse subdirectories
-:: switch  : -y	Assume Yes on all queries
-:: switch  : -bs{o|e|p}{0|1|2}	Set output stream for output/error/progress
-set OPTIONS-SEVENZIP=-r -y -bso0
-:: Options : -quiet Quiet mode
+:: command : r     Recurse subdirectories
+:: command : y     Assume Yes on all queries
+:: switch  : bs{o|e|p}{0|1|2}	Set output stream for output/error/progress
+:: bso - standard output messages / bse - error messages / bsp - progress information
+:: command : mmt   multithread the operation (faster)
+:: command : ssc   case-insensitive (The default is "-ssc-" on Windows (insensitive) and "-scc" on Linux (sensitive))
+:: command : bd     Disable the progress indicator
+set OPTIONS-SEVENZIP=-r -y -bso0 -mmt -ssc -bd
+
+:: command : quiet Quiet mode
 set OPTIONS-NCONVERT=-quiet
-:: Options : identify           Describes the format and characteristics of one or more image file
-:: Options : -regard-warnings 	pay attention to warning messages.
+
+:: command : identify           Describes the format and characteristics of one or more image file
+:: command : regard-warnings 	pay attention to warning messages
 set OPTIONS-TESTCONVERT=identify -regard-warnings
 
 :: Full 72 dpi conversion

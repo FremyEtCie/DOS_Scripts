@@ -71,7 +71,10 @@ for /f "tokens=* usebackq" %%A in (%FOLDER-TMP%%LISTING-FILE%) do (
 			rd /s /q "!FOLDER-ARCHIVE-NAME-FOLDER!" 2>NUL
 			echo [ERROR] Aucun fichier image a traiter dans le fichier "%%~A" > CON
 			echo [ERROR] Aucun fichier image a traiter dans le fichier "%%~A" >> %BAKCLOG_FILE%	
+			echo [INFO] Deplacement du fichier en erreur >> %BAKCLOG_FILE%	
 			move /Y "%FOLDER-CBx%%%~nxA" "%FOLDER-ERR%%%~nxA" >> %BAKCLOG_FILE%
+			echo [INFO] Supression du repertoire du fichier en erreur >> %BAKCLOG_FILE%	
+			rmdir /s /q "%FOLDER-TMP%%%~nxA" 2>NUL 1>NUL
 			set /a cpt_nb_7zfile_ko+=1
 		)
 		set /a CPT_NBFILE_KO=!CPT_NBFILE_KO!+!cpt_nb_7zfile_ko!

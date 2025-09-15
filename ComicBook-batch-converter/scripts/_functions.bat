@@ -185,9 +185,27 @@ REM ----------------------------------------------------------------------------
 ::echo #ProcedureDisplayElapsedTime# The value of parameter 2 is %2.
 set strt=%~2
 set endt=%time%
+echo [INFO] Debut du Traitement : %strt% >> %BAKCLOG_FILE%
+echo [INFO] Fin du Traitement : %endt% >> %BAKCLOG_FILE%
+@rem ---
+set /a jour    = (%endt:~0,2%-%strt:~0,2%)*360000
+set /a heure   = (%endt:~3,2%-%strt:~3,2%)*006000
+set /a minute  = (%endt:~6,2%-%strt:~6,2%)*000100
+set /a seconde = (%endt:~9,2%-%strt:~9,2%)*000001
+echo (jour) : (%endt:~0,2%-%strt:~0,2%)*360000 = .%jour%. >> %BAKCLOG_FILE%
+echo (heure) : (%endt:~3,2%-%strt:~3,2%)*6000  = .%heure%. >> %BAKCLOG_FILE%
+echo (minute) : (%endt:~6,2%-%strt:~6,2%)*100  = .%minute%. >> %BAKCLOG_FILE%
+echo (seconde) : (%endt:~9,2%-%strt:~9,2%)*1   = .%seconde%. >> %BAKCLOG_FILE%
+if /i "%jour%"==""    set a/ jour=0
+if /i "%heure%"==""   set a/ heure=0
+if /i "%minute%"==""  set a/ minute=0
+if /i "%seconde%"=="" set a/ seconde=0
+set /a elpsd=%jour%+%heure%+%minute%+%seconde%
+@rem ---
 ::Calculating elapsed time
-set /A elpsd=(%endt:~0,2%-%strt:~0,2%)*360000 + (%endt:~3,2%-%strt:~3,2%)*6000 + (%endt:~6,2%-%strt:~6,2%)*100 + (%endt:~9,2%-%strt:~9,2%) 
-if %elpsd% LSS 0 set /A elpsd=%elpsd% + 24*360000
+rem -- set /A elpsd=(%endt:~0,2%-%strt:~0,2%)*360000+(%endt:~3,2%-%strt:~3,2%)*6000+(%endt:~6,2%-%strt:~6,2%)*100+(%endt:~9,2%-%strt:~9,2%)*1
+echo [INFO] Elapse Time calcule : %elpsd% >> %BAKCLOG_FILE%
+if %elpsd% LSS 0 set /A elpsd=%elpsd%+24*360000
 ::Display final countdown
 set /A "cc=elpsd%%100+100,elpsd/=100,ss=elpsd%%60+100,elpsd/=60,mm=elpsd%%60+100,hh=elpsd/60+100"
 echo [INFO] Temps final d'execution du batch : %hh:~1%h:%mm:~1%m:%ss:~1%.%cc:~1%s

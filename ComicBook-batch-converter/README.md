@@ -37,7 +37,7 @@ The script offers the following features:
 5. Decompress file from .CBx/ into the folder .TMP/ and test graphic elements plus delete other inside it (Script two)
 5. Make a pdf file and put it into the folder .PDF/ (Script three)
 7. Compress the pdf file into the folder .CMP/ (Script four)
-8. Delete temporary files and display elapsed time
+8. Delete temporary files (.PDF/ and .TMP/ folders) and display elapsed time
 
 ## Usage
 
@@ -177,6 +177,7 @@ graph RL;
 - Ghostscript
   - [x] compress pdf files in compatibility level 1.5
   - [x] compress mono or color image resolution in 72 dpi
+  - [ ] manage issues if exist - need test files
 - CONV_CBx-TO-PDF.BAT
   - [x] check first using (delete todelete.txt file)
   - [x] check tools available before
@@ -185,38 +186,12 @@ graph RL;
   - [x] generate list of file for treatment (listeCB.txt file)
   - [x] treatment of n file with loop indicated (listeCB.txt file)
   - [x] indicate which file in treatment (PictureListToDo.txt file)
-  - [x] delete files which should not included inside the PDF file with extension or filename like:
-    - [x] *.1
-    - [x] *.tif
-    - [x] *.pdf
-    - [x] *.rtf
-    - [x] *.htm*
-    - [x] *.txt
-    - [x] *.xml
-    - [x] *.sfv
-    - [x] *.nfo
-    - [x] *.afi
-    - [x] *.old
-    - [x] *.csv*
-    - [x] *.db
-    - [x] *.url
-    - [x] *.tmp
-    - [x] *.rar
-    - [x] *.r0*
-    - [x] *.r1*
-    - [x] *.alv
-    - [x] *.zip
-    - [x] *.sfv
-    - [x] *.webloc
-    - [x] descript.ion
-    - [x] .directory
-    - [x] Thumbs.db
-    - [x] .DS_Store folder and contents from Mac
-    - [x] detect a non image file with a proper list designed
+  - [x] delete file(s) who are not pictures files inside the CBR or CBZ file with specifical extension or filename (extensions.dat)
   - [x] detect if no file decompressed
   - [x] remove / delete old folder temporary unused after
+  - [ ] manage doublon files
 - Create tests with bad files
-  - [x] make non regression tests
+  - [x] make non regression tests (90%)
 
 ## License
 

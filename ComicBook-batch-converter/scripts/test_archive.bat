@@ -21,6 +21,7 @@ ECHO [INFO] Tests sur le(s) %cpt_nb_file% fichier(s) COMIC BOOK a convertir  >> 
 for /f "tokens=*" %%B in ('dir /b /a-d /n "%FOLDER-CBx%*.CB*"') do (
 	echo [INFO] Test sur le fichier %FOLDER-CBx%%%~nxB
 	%SEVENZIP% %OPTION-TEST-SEVENZIP% "%FOLDER-CBx%%%~nxB"
+	rem echo ++++++++++++++ !errorlevel!
 	if ERRORLEVEL 1 (
 		set /a cpt_nb_7zfile_ko+=1
 		echo [ERROR] Erreur de compression dans le fichier %%~B > CON
