@@ -89,15 +89,16 @@ echo checked/
 :Clear_all_checked_initialisations()
 @CLS
 
+ECHO ----------------------- RENAME FILES IF NEEDED ------------------------
+call scripts/_functions.bat "ProcedureRenameFile" %FOLDER-CBX%
+echo checked/
+
 ECHO ---------------------- IF FILE EXISTS TO CONVERT ? --------------------
 call scripts/_functions.bat "ProcedureTestFilesInsideFolder"
 echo checked/
 
 ECHO [INFO] PREPARATION ====================================================
 
-ECHO ----------------------- RENAME FILES IF NEEDED ------------------------
-call scripts/_functions.bat "ProcedureRenameFile" %FOLDER-CBX%
-echo checked/
 ECHO ---------------- TESTING FILES IN FOLDER (SCRIPT ONE) -----------------
 call scripts/test_archive.bat
 echo checked/                                                                               - > CON
