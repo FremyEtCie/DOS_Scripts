@@ -1,127 +1,206 @@
-@ECHO OFF & setlocal enableextensions enabledelayedexpansion
-:: CONV_CBx-TO-PDF.BAT: Make a PDF file from Comic Book file
-:: Image processing for create PDF file from Comic Book (.CBR & .CBZ) with 7zip/ImageMagik/NConvert tools on Windows x64
-:: Tools used :
-:: - 7zip v22.01 // https://sevenzip.osdn.jp/chm/cmdline/commands/
-:: - ImageMagick v7.1.0 // http://www.gogolplex.org/?imagemagick
-:: - NConvert v7.121 // https://www.xnview.com/wiki/index.php/NConvert_User_Guide
-:: Author: Frédéric Sagez
-:: License: free for all forever
-:: Source, docs and manual: https://www.dropbox.com/home/github.com/DOS_Scripts/ComicBook-batch-converter
 @CLS
+:: Image processing for create PDF file from Comic Book (.CBR & .CBZ) with 7zip/ImageMagik/NConvert/Ghostscript/ExifTool tools on Windows x64 bits
+:: Tools used :
+:: - 7zip v24.08 (64-bit Windows x64) - https://sevenzip.osdn.jp/chm/cmdline/commands/
+:: - ImageMagick v7.1.1-24 (Portable-Q16-x64) - http://www.gogolplex.org/?imagemagick - https://imagemagick.org/script/magick-script.php
+:: - NConvert v7.110 x86 - https://www.xnview.com/wiki/index.php/NConvert_User_Guide
+:: - GPL Ghostscript v10.3.1.0 x64 - https://www.ghostscript.com/
+:: - ExifTool v.13.59 for 64-bit Windows - https://exiftool.org/
+:: Author: Frédéric Sagez
+:: Copyright (c) 2022-2026 Frémy&Cie
+:: Source, docs, manual and licence: https://github.com/FremyEtCie/DOS_Scripts/tree/main/ComicBook-batch-converter
 
-:Config_label
+@ECHO OFF & SETLOCAL enableextensions enabledelayedexpansion
+TITLE CONV_CBx-TO-PDF.BAT: Batch to make PDF file from a Comic Book file (Version 2.0)
+
+:Terminal_Colors_and_Size()
+COLOR 06 & MODE CON
+
+:Config_label()
+:: WORK FOLDERS
 set FOLDER-CBx=.\files\.CBx\
 set FOLDER-LOG=.\files\.LOG\
 set FOLDER-PDF=.\files\.PDF\
+set FOLDER-CMP=.\files\.CMP\
 set FOLDER-TMP=.\files\.TMP\
+set FOLDER-ERR=.\files\.ERR\
+:: LISTING FILES
 set LISTING-FILE=listeCB.txt
+set LISTING-FILE-ERR=%FOLDER-LOG%%listeCBErr.txt
+set LISTTODO=%FOLDER-TMP%PictureListToDo.txt
+set /a TOTAL-FILE=0
+:: RENAME FILES STATE
+set RENAME_FILE_POURCENTAGE=nul
+set RENAME_FILE_EXCLAMATION=nul
+:: EXTENSION FILE ERASED FROM FILE DECOMPRESSED WHICH NOT USE TO MAKE A PDF FILE
+set LIST-FILE-EXTENSION=.\scripts\extensions.dat
+:: PROGRAM TOOLS USED TO DECOMPRESS AND CONVERT
+set SEVENZIP=.\tools\01.decompress_cbx\7z.exe
+set CONVERTIMG=.\tools\02.convert_cbx\nconvert.exe
+set IMAGEDISK=.\tools\03.create_pdf\convert.exe
+set TESTCONVERT=.\tools\03.create_pdf\magick.exe
+set GHOSTSCRIPT=.\tools\04.compress_pdf\gswin64c.exe
+set EXIFTOOL=.\tools\05.tagrename_pdf\exiftool.exe
+:: PARAMETERS OF TOOLS USED WITH THE SCRIPT
+call scripts/_parameters.bat
 
-set SEVENZIP=.\tools\7z.exe
-set IMAGEDISK=.\tools\convert.exe
-set OPTIONS-IMAGEDISK=-auto-orient
-set CONVERTIMG=.\tools\nconvert.exe
-set OPTIONS-CONVERTIMG=-out jpeg -overwrite -ignore_errors
+:Using_UTF-8_Encoding()
+CHCP 65001 > NUL
 
-:Start_label
-CHCP 1252 > NUL
+set start_batch_time=%time%
 
-if exist "%FOLDER-CBx%todelete.txt" (
+ECHO [INFO] CONTROLS AND CHECKING ==========================================
+
+ECHO -------------------------- NO FOLDER TO WORK ? ------------------------
+if not exist %FOLDER-CBx% MKDIR %FOLDER-CBx%
+if not exist %FOLDER-LOG% MKDIR %FOLDER-LOG%
+if not exist %FOLDER-PDF% MKDIR %FOLDER-PDF%
+if not exist %FOLDER-CMP% MKDIR %FOLDER-CMP%
+if not exist %FOLDER-TMP% MKDIR %FOLDER-TMP%
+if not exist %FOLDER-ERR% MKDIR %FOLDER-ERR%
+echo checked/
 ECHO ----------------------------- FIRST ACCESS ? --------------------------
-del %FOLDER-CBx%todelete.txt 2>NUL
-del %FOLDER-LOG%todelete.txt 2>NUL
-del %FOLDER-PDF%todelete.txt 2>NUL
-del %FOLDER-TMP%todelete.txt 2>NUL
-echo checked/
+if exist "%FOLDER-CBx%todelete.txt" (
+	del %FOLDER-CBx%todelete.txt 2>NUL
+	del %FOLDER-LOG%todelete.txt 2>NUL
+	del %FOLDER-PDF%todelete.txt 2>NUL
+	del %FOLDER-CMP%todelete.txt 2>NUL
+	del %FOLDER-TMP%todelete.txt 2>NUL
+	del %FOLDER-ERR%todelete.txt 2>NUL
 )
+echo checked/
 ECHO --------------------------- TOOLS AVALAIBLE ? -------------------------
-if not exist %SEVENZIP% (goto :Error_tools)
-if not exist %IMAGEDISK% (goto :Error_tools)
-if not exist %CONVERTIMG% (goto :Error_tools)
+if not exist %SEVENZIP% ( goto :Error_tools_s )
+if not exist %CONVERTIMG% ( goto :Error_tools_c )
+if not exist %IMAGEDISK% ( goto :Error_tools_i )
+if not exist %GHOSTSCRIPT% ( goto :Error_tools_g )
+if not exist %TESTCONVERT% ( goto :Error_tools_t )
+if not exist %LIST-FILE-EXTENSION% ( goto :Error_tools_e )
 echo checked/
-ECHO --------------------------- IF FILE EXISTS ? --------------------------
-if not exist %FOLDER-CBX%\*.CB* (
-	echo [ERROR] No file to convert in the folder %FOLDER-CBx% > CON
-	goto :Error_label
-)
-echo checked/
+
 ECHO ------------------------- GENERATE BACKLOG FILE -----------------------
 set mydatestamp=%DATE:~0,2%%DATE:~3,2%%DATE:~6,4%-%TIME:~0,2%h%TIME:~3,2%
 set BAKCLOG_FILE=%FOLDER-LOG%rapport_%mydatestamp: =%.txt
 del %BAKCLOG_FILE% 2>NUL
 echo checked/
-ECHO --------------------------- GENERATE LIST FILE ------------------------
+
+ECHO ------------------------ PURGE TEMPORARY FILES ? ----------------------
+call scripts/_functions.bat "ProcedureDelTemporaryFiles"
+echo checked/
+
+:Clear_all_checked_initialisations()
+@CLS
+
+ECHO ------------------ DETECT DUPLICATE FILE IN A FOLDER ------------------
+call scripts/_functions.bat "ProcedureTestDuplicateFile" %FOLDER-CBX%
+echo checked/
+
+ECHO ----------------------- RENAME FILES IF NEEDED ------------------------
+call scripts/_functions.bat "ProcedureRenameFile" %FOLDER-CBX%
+echo checked/
+
+ECHO ---------------------- IF FILE EXISTS TO CONVERT ? --------------------
+call scripts/_functions.bat "ProcedureTestFilesInsideFolder"
+echo checked/
+
+ECHO [INFO] PREPARATION ====================================================
+
+ECHO ---------------- TESTING FILES IN FOLDER (SCRIPT ONE) -----------------
+call scripts/test_archive.bat
+echo checked/                                                                               - > CON
+echo ---------------------------------------------------------------------------------------- > CON
+ECHO ------------------------- GENERATE LIST FILE TO DO -------------------- >> %BAKCLOG_FILE%
+call scripts/_functions.bat "ProcedureGenerateFileListingAndInformationsIntoLog" %FOLDER-CBX%*.CB*
+if %ERROR_FILE% EQU -1 ( goto :NoFile_label )
+ECHO -------------------------- GENERATE LISTING FILE ---------------------- >> %BAKCLOG_FILE%
+call scripts/_functions.bat "ProcedureGenerateFileListing" %FOLDER-CBX%*.CB* %FOLDER-TMP%%LISTING-FILE%
+if %ERROR_FILE% EQU -1 ( goto :NoFile_label )
+
+ECHO [INFO] WORKING HARD ==================================================^>
+
+ECHO ------------------ DECOMPRESS ARCHIVE FILE (SCRIPT TWO) ---------------
+call scripts/decomp_archive.bat %LISTTODO%
+echo checked/                                                                               - > CON
+echo ---------------------------------------------------------------------------------------- > CON
+ECHO ------------------------ ANY FILE TO PROCEED ? ------------------------ >> %BAKCLOG_FILE%
 del %FOLDER-TMP%%LISTING-FILE% 2>NUL
-echo Liste des fichiers a traiter : >> %BAKCLOG_FILE%
-for %%a in (%FOLDER-CBx%*.CB*) do (echo "%%a" >> %BAKCLOG_FILE%)
-for %%b in (%FOLDER-CBx%*.CB*) do (echo %%b >> %FOLDER-TMP%%LISTING-FILE%)
-set /a cpt_nb_total_file=0
-for /f "delims=" %%i in ('type %FOLDER-TMP%%LISTING-FILE%') do (set /a cpt_nb_total_file+=1)
-set TOTAL-FILE=!cpt_nb_total_file!
-echo [INFO] %TOTAL-FILE% fichier(s) a traiter dans le listing %FOLDER-TMP%%LISTING-FILE% > CON
-ECHO ------------------------------ WORKING ON IT --------------------------
-set /a cpt_total_file=0
-for /f "tokens=* usebackq" %%a in (%FOLDER-TMP%%LISTING-FILE%) do (
-:Next_Label
-	set /a cpt_total_file=cpt_total_file+1
-	echo [INFO] Traitement du fichier "%%~a" - !cpt_total_file! / %TOTAL-FILE% > CON
-	echo [INFO] Traitement du fichier "%%~a"
-	if exist "%%~a" (
-		ECHO ------------------------------ CREATE FOLDER --------------------------
-		echo [INFO] Suppression du repertoire %FOLDER-TMP%%%~na
-		rmdir /S /Q "%FOLDER-TMP%%%~na" 2>NUL
-		echo [INFO] Creation du repertoire %FOLDER-TMP%%%~na
-		mkdir "%FOLDER-TMP%%%~na"
-		ECHO ---------------------------- DECOMPRESS FILE --------------------------
-		echo [INFO] Decompression du fichier "%%~a"
-		set FILENAME=%%a
-		%SEVENZIP% e "!FILENAME:~0,-1!" -o"%FOLDER-TMP%%%~na" *.* -r
-		IF ERRORLEVEL 1 GOTO :Error_label
-		ECHO --------------------------- CONVERT IMAGE FILES -----------------------
-		if not exist "%FOLDER-TMP%%%~na\*.*" (
-			echo [WARNING] Aucun fichier decompresse dans le repertoire "%FOLDER-TMP%%%~na" > CON
-			echo [WARNING] Aucun fichier decompresse dans le repertoire "%FOLDER-TMP%%%~na"
-			rmdir /S /Q "%FOLDER-TMP%%%~na" 2>NUL
-			if %TOTAL-FILE% == 1 (goto :Error_label)
-		)
-		echo [INFO] Suppression des fichiers .txt .xml .sfv .nfo dans le repertoire %FOLDER-TMP%%%~na
-		del "%FOLDER-TMP%%%~na\*.txt" 2>NUL
-		del "%FOLDER-TMP%%%~na\*.xml" 2>NUL
-		del "%FOLDER-TMP%%%~na\*.sfv" 2>NUL
-		del "%FOLDER-TMP%%%~na\*.nfo" 2>NUL
-		del /S /A:H "%FOLDER-TMP%%%~na\Thumbs.db" 2>NUL
-		if exist "%FOLDER-TMP%%%~na\*.jpg" (
-		echo [INFO] Convertion uniquement des images au format JPEG dans le repertoire %FOLDER-TMP%%%~na
-		%CONVERTIMG% %OPTIONS-CONVERTIMG% "%FOLDER-TMP%%%~na\*.jpg"
-		IF ERRORLEVEL 1 GOTO :Error_label
-		)
-		if not exist "%FOLDER-TMP%%%~na" (
-			echo [WARNING] Fichier %%~a non decompresse > CON
-			echo [WARNING] Fichier %%~a non decompresse
-			rmdir /S /Q "%FOLDER-TMP%%%~na" 2>NUL
-		) else (
-			ECHO ----------------------------- CREATE PDF FILE -------------------------
-			echo [INFO] Suppression du fichier "%FOLDER-PDF%%%~na.PDF"
-			del "%FOLDER-PDF%%%~na.PDF" 2>NUL
-			echo [INFO] Conversion du fichier "%FOLDER-PDF%%%~na.PDF"
-			%IMAGEDISK% %OPTIONS% "%FOLDER-TMP%%%~na\*.*" "%FOLDER-PDF%%%~na.PDF"
-			IF ERRORLEVEL 1 GOTO :Error_label
-			echo [INFO] Supression du repertoire de travail %FOLDER-TMP%%%~na
-			rmdir /S /Q "%FOLDER-TMP%%%~na" 2>NUL
-		)
-	)
-)>>%BAKCLOG_FILE%
-ECHO ----------------------------------- DONE! -----------------------------
+call scripts/_functions.bat "FonctionTestIfFileExistIn" %FOLDER-CBX%*.CB*
+if %ERROR_FILE% EQU -1 ( goto :NoFile_label )
+ECHO -------------------- GENERATE FOLDER WITH IMAGE FILES ----------------- >> %BAKCLOG_FILE%
+call scripts/_functions.bat "ProcedureGenerateFileListing" %FOLDER-CBX%*.CB* %FOLDER-TMP%%LISTING-FILE%
+if %ERROR_FILE% EQU -1 ( goto :NoFile_label )
+ECHO ------------------- GENERATE PDF FILES (SCRIPT THREE) -----------------
+call scripts/create_pdf_file.bat
+echo checked/
+
+ECHO [INFO] COMPRESS ^& CLEAN UP ============================================^>
+
+:Compress_label
+ECHO ------------------------ ANY FILE TO PROCEED ? ------------------------ >> %BAKCLOG_FILE%
+call scripts/_functions.bat "ProcedureGenerateFileListing" %FOLDER-PDF%*.PDF %FOLDER-TMP%%LISTING-FILE%
+if %ERROR_FILE% EQU -1 ( goto :NoFile_label )
+ECHO ---------------------- COMPRESS PDF FILES (SCRIPT FOUR) ----------------------
+call scripts/compress_pdf_file.bat
+echo checked/
+ECHO ----------------- RENAME COMPRESS PDF FILES IF NEEDED ----------------- >> %BAKCLOG_FILE%
+call scripts/_functions.bat "ProcedureReplaceFile"
+
+:UpdatePDFFilesTags()
+ECHO ---------------------- UPDATE PDF FILES TAGS --------------------------
+call scripts/_functions.bat "ProcedureUpdatePdfTags" %FOLDER-CMP%*.PDF
+if %ERROR_FILE% EQU -1 ( goto :NoFile_label )
+echo checked/
+
+:DeleteTemporaryFiles()
+ECHO ---------------------- DELETE ALL TEMPORARY FILES ---------------------
+call scripts/_functions.bat "ProcedureDelTemporaryFiles"
+ECHO ------------------ DISPLAY ELAPSED TIME OF TREATMENT ------------------ >> %BAKCLOG_FILE%
+call scripts/_functions.bat "ProcedureDisplayElapsedTime" "%start_batch_time%"
+ECHO [INFO] ^<============================================ TREATMENT IS OVER
+
+if exist "%FOLDER-ERR%*.*" ( goto :Error_File_Detected )
+goto :End_label
+
+:NoFile_label
+ECHO ------------------------- NO FILE TO CONVERT ! -------------------------
+if %NO_PDF_FILE% NEQ -1 ( goto :Compress_label )
+echo [ERROR] No file to convert in the folder %FOLDER-CBx%
+call scripts/_functions.bat "ProcedureDelTemporaryFiles"
 goto :End_label
 :Error_label
-ECHO ------------------------- ERRORS ! see rapport file -------------------
+ECHO -------------------- ERRORS (see: %LISTING-FILE-ERR%) -----------------
+echo [ERROR] See the log file %BAKCLOG_FILE%s
 goto :End_label
-:Error_tools
-ECHO ----------------------------- NO TOOLS FIND ! -------------------------
-:End_label
-PAUSE
+:Error_tools_s
+ECHO ----------------------------- NO TOOLS FIND ^^! -------------------------
+echo [ERROR] Il manque le programme "%SEVENZIP%" pour decompresser les fichiers ^^!
+goto :End_label
+:Error_tools_i
+ECHO ----------------------------- NO TOOLS FIND ^^! -------------------------
+echo [ERROR] Il manque le programme "%IMAGEDISK%" pour generer les fichiers pdf ^^!
+goto :End_label
+:Error_tools_c
+ECHO ----------------------------- NO TOOLS FIND ^^! -------------------------
+echo [ERROR] Il manque le programme "%CONVERTIMG%" pour convertir les fichiers images ^^!
+:Error_tools_g
+ECHO ----------------------------- NO TOOLS FIND ^^! -------------------------
+echo [ERROR] Il manque le programme "%GHOSTSCRIPT%" pour compresser les fichiers pdf ^^!
+goto :End_label
+:Error_tools_t
+ECHO ----------------------------- NO TOOLS FIND ^^! -------------------------
+echo [ERROR] Il manque le programme "%TESTCONVERT%" pour valider les fichiers images ^^!
+goto :End_label
+:Error_tools_e
+ECHO ----------------------------- NO TOOLS FIND ^^! -------------------------
+echo [ERROR] Il manque le détail des extensions "%LIST-FILE-EXTENSION%" pour cleaner les fichiers à traiter ^^!
+goto :End_label
+:Error_File_Detected
+ECHO -------------------------- ERROR FILE IN FOLDER ^^! ---------------------
+echo [WARNING] Il y a des fichiers qui ont été déplacés dans le repertoire %FOLDER-ERR% ^^!
+goto :End_label
 
 :End_label
-@CLS
+PAUSE
+ENDLOCAL
 @ECHO ON
 EXIT
