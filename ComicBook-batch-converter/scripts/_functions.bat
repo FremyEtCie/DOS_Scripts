@@ -216,7 +216,7 @@ REM -------------------------------------------------------------------
 :ProcedureTestDuplicateFile
 ::echo #ProcedureTestDuplicateFile# The value of parameter 2 is %2
 if exist "%~2*.CB*" (
-	echo [INFO] Detection de fichier^(s^) en double dans le repertoire de travail en cours... > CON
+	echo [INFO] Detection de fichier^(s^) en double dans le repertoire de travail ... > CON
 	call powershell.exe -executionpolicy Unrestricted -File "%cd%\scripts\duplicate_file.ps1" %FOLDER-CBx% %FOLDER-ERR%
 )
 goto :EndFunctions

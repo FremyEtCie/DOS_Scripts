@@ -158,7 +158,8 @@ ECHO ------------------ DISPLAY ELAPSED TIME OF TREATMENT ------------------ >> 
 call scripts/_functions.bat "ProcedureDisplayElapsedTime" "%start_batch_time%"
 ECHO [INFO] ^<============================================ TREATMENT IS OVER
 
-if exist "%FOLDER-ERR%*.*" ( goto :Error_File_Detected )
+:ErrorFilesDetected()
+if exist "%FOLDER-ERR%*.CB*" ( goto :Error_File_Detected )
 goto :End_label
 
 :NoFile_label
