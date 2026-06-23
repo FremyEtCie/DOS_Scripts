@@ -221,5 +221,13 @@ if exist "%~2*.CB*" (
 )
 goto :EndFunctions
 
+REM -----------------------------------
+REM --- Affiche un message d'alerte ---
+REM -----------------------------------
+:ProcedureDisplayMessage
+::echo #ProcedureDisplayMessage# The value of parameter 2 is %2
+call powershell.exe -executionpolicy Unrestricted -File "%cd%\scripts\display_mess.ps1" %2
+goto :EndFunctions
+
 :EndFunctions
 exit /b %ERROR_FILE%

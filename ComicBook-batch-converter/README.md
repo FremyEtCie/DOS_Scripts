@@ -1,6 +1,6 @@
 ## About
 
-Script, Dos batch call [CONV_CBx-TO-PDF.BAT](https://github.com/FremyEtCie/DOS_Scripts/tree/main/ComicBook-batch-converter) to make PDF file from Comic Book file
+Script, Dos batch call [CONV_CBx-TO-PDF.BAT](https://github.com/FremyEtCie/DOS_Scripts/tree/main/ComicBook-batch-converter) to make PDF file from Comic Book file version 2.5
 
 ## Processing
 
@@ -8,7 +8,7 @@ Image processing for create PDF file from Comic Book (CBR & CBZ extensions) with
 
 ## Building with
 
-* VSC :: v1.101.2 64bits
+* VSC :: v1.124.2 64bits
 * OS :: Windows_NT x64 10.0.19045
 
 ## Free portable tools used
@@ -112,6 +112,7 @@ graph RL;
  |   +-- compress_pdf_file.bat
  |   +-- create_pdf_file.bat
  |   +-- decomp_archive.bat
+ |   +-- display_mess.ps1
  |   +-- test_archive.bat
  |   +-- rename_char.ps1
  |   +-- replace_char.ps1
@@ -188,7 +189,7 @@ graph RL;
 - Ghostscript
   - [x] compress pdf files in compatibility level 1.5
   - [x] compress mono or color image resolution in 72 dpi
-  - [ ] manage issues if exist - need test files
+  - [ ] manage issues if exist - need test files to manage
 - ExifTool
   - [x] manage pdf file's tags
 - CONV_CBx-TO-PDF.BAT
@@ -197,13 +198,13 @@ graph RL;
   - [x] check file(s) to convert available before (cbr or cbz or pdf file)
   - [x] generate report file of treatment (*listeCBErr.txt log file)
   - [x] generate list of file for treatment (listeCB.txt file)
-  - [x] treatment of n file with loop indicated (listeCB.txt file)
-  - [x] indicate which file in treatment (PictureListToDo.txt file)
-  - [x] delete file(s) who are not pictures files inside the CBR or CBZ file with specifical extension or filename (extensions.dat)
+  - [x] treatment of n files with loop indicated (listeCB.txt file)
+  - [x] indicate which file is in treatment (PictureListToDo.txt file)
+  - [ ] delete file(s) who are not pictures files inside the CBR or CBZ file with specifical extension or filename (extensions.dat)
   - [x] detect if no file decompressed
-  - [x] remove / delete old folder temporary unused after
+  - [x] remove / delete old temporary folder unused after the treatment
   - [x] manage duplicate files
-  - [x] display if they are files inside the error folder
+  - [x] Alert messages
 - Create tests with bad files
   - [x] make non regression tests (90%)
 

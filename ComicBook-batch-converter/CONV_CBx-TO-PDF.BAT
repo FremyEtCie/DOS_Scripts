@@ -11,7 +11,7 @@
 :: Source, docs, manual and licence: https://github.com/FremyEtCie/DOS_Scripts/tree/main/ComicBook-batch-converter
 
 @ECHO OFF & SETLOCAL enableextensions enabledelayedexpansion
-TITLE CONV_CBx-TO-PDF.BAT: Batch to make PDF file from a Comic Book file (Version 2.0)
+TITLE CONV_CBx-TO-PDF.BAT: Batch to make PDF file from a Comic Book file (Version 2.5)
 
 :Terminal_Colors_and_Size()
 COLOR 06 & MODE CON
@@ -197,7 +197,7 @@ echo [ERROR] Il manque le détail des extensions "%LIST-FILE-EXTENSION%" pour cl
 goto :End_label
 :Error_File_Detected
 ECHO -------------------------- ERROR FILE IN FOLDER ^^! ---------------------
-echo [WARNING] Il y a des fichiers qui ont été déplacés dans le repertoire %FOLDER-ERR% ^^!
+call scripts/_functions.bat "ProcedureDisplayMessage" "[WARNING] Il existe de(s) fichier(s) dans le repertoire %FOLDER-ERR%."
 goto :End_label
 
 :End_label
